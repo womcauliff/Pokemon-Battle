@@ -1,0 +1,10 @@
+.pokemon {
+	background-color: white;
+	border: red 5px solid;
+	border-radius: 50%;
+	padding: 10px;	
+}
+
+.pokemon.starter {
+	background-color: gray;
+}
