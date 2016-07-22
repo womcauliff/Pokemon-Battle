@@ -1,67 +1,131 @@
+/**
+ * RPG global variables
+ */
+var allPokemon;
+var starterID;
+var starterSelected;
+
 $(document).ready(function(){
+	init();
+});
 
-	var bulbasaur = {
-		name: "Bulbasaur",
-		img: "001Bulbasaur.png",
-		hp: 45,
-		attack: 49
+
+/**
+ * Pokemon Constructor
+ */
+function Pokemon(name, img, hp, attack) {
+
+	var pokemon = {
+		id: uniqueID(),
+		name: name,
+		img: img,
+		hp: hp,
+		attack: attack,
+		buildHTML: function() {
+			$pokemonImg = $("<img>")
+				.attr("src", "assets/images/" + this.img)
+				.attr("class", "img-responsive");
+
+			$pokemonDiv = $("<div></div>")
+				.addClass("pokemon")
+				.data("index", this.id)
+				.append($pokemonImg);
+
+			return $pokemonDiv;
+		},
 	};
 
-	var charmander = {
-		name: "Charmander",
-		img: "004Charmander.png",
-		hp: 39,
-		attack: 52
-	};
+	return pokemon;
+}
+/**
+ * Helper function for Pokemon Object: Generates unique id
+ */
+var uniqueID = (function() {
+   var id = 0; // This is the private persistent value
+   // The outer function returns a nested function that has access
+   // to the persistent value.  It is this nested function we're storing
+   // in the variable uniqueID above.
+   return function() { return id++; };  // Return and increment
+})();
 
-	var squirtle = {
-		name: "Squirtle",
-		img: "007Squirtle.png",
-		hp: 44,
-		attack: 48
-	};
 
-	var pikachu = {
-		name: "Pikachu",
-		img: "025Pikachu.png",
-		hp: 35,
-		attack: 55
-	}
+/**
+ * initializes game
+ */
+function init() {
+console.log("init()");
+	allPokemon = [];
+	starterSelected = false;
+	createPokemon();
+	displayStarterPokemon();
+}
+function createPokemon() {
+console.log("createPokemon()");
+	var bulbasaur = new Pokemon(
+		"Bulbasaur",
+		"001Bulbasaur.png",
+		45,
+		49);
 
-	var allPokemon = [];
-	allPokemon[0] = bulbasaur;
-	allPokemon[1] = charmander;
-	allPokemon[2] = squirtle;
-	allPokemon[3] = pikachu;
-	var starter;
-
+	var charmander = new Pokemon(
+		"Charmander",
+		"004Charmander.png",
+		39,
+		52
+	);
+	var squirtle = new Pokemon(
+		"Squirtle",
+		"007Squirtle.png",
+		44,
+		48
+	);
+	var pikachu = new Pokemon(
+		"Pikachu",
+		"025Pikachu.png",
+		35,
+		55
+	);
+	allPokemon[bulbasaur.id] = bulbasaur;
+	allPokemon[charmander.id] = charmander;
+	allPokemon[squirtle.id] = squirtle;
+	allPokemon[pikachu.id] = pikachu;
+}
+function displayStarterPokemon() {
+console.log("displayStarterPokemon()");
 	// Add all pokemon to holding station
 	for (var i = 0; i < allPokemon.length; i++) {
 		console.log(allPokemon[i].name);
 		
-		$pokemonImg = $("<img>")
-			.attr("src", "assets/images/" + allPokemon[i].img)
-			.attr("class", "img-responsive");
+		if (true) {
 
-		$pokemonDiv = $("<div></div>")
-			.addClass("pokemon")
-			.data("index", i)
-			.append($pokemonImg);
+		}
 
+		$pokemon = 
+		allPokemon[i].buildHTML()
+		.addClass("starter")
+		.on("click", function() {
+			//chose starter
+			if (!starterSelected) {
+				console.log($(this).data("index"));
+				$indexVal = $(this).data("index");
+				console.log(allPokemon[$indexVal].name + " selected");		
+				starterID = $indexVal;
+				starterSelected = true;
+				$(this).parent().fadeOut( "slow", function() {
+				    console.log("Animation complete.");
+				    $(".pokemon").removeClass("starter");
+				    $(this).remove();
+				});
+			}
+			//chose challenger
+			else {
+
+			}
+		});
 		$wrapper = $("<div></div>")
-			.addClass("col-md-3")
-			.append($pokemonDiv);
-
-		$("#holdingStation").append($wrapper);
+				.addClass("col-md-3")
+				.append($pokemon);
+		$("#holdingStation div.panel-body").append($wrapper);
 	}
-	
+}
 
-
-	$(".pokemon").on("click", function() {
-		$indexVal = $(this).data("index");
-		console.log(allPokemon[$indexVal].name + " selected");
-		starter = allPokemon[$indexVal];
-		$(this).addClass("starter");
-	})
-
-});
