@@ -1,11 +1,18 @@
-#holdingStation .panel-body{
-	min-height: 287px;
+#holdingStation .panel-body {
+/*	min-height: 287px;
+*/}
+#holdingStation .col-md-12 {
+	padding: 0 45px;
+    margin-bottom: 10px;
 }
-#holdingStation .pokemon {
-	background-color: white;
-	border: red 5px solid;
+.pokemon {
 	border-radius: 50%;
 	padding: 10px;
+}
+#holdingStation .pokemon.starter {
+/*	border: #337ab7 5px solid; */
+	border: black 5px solid; 
+	background-color: #337ab7;
 	-webkit-transition-property: background-color -webkit-transform;
     -webkit-transition-duration: 0.5s;
     -webkit-transition-timing-function: ease-in-out;
@@ -14,7 +21,28 @@
     transition-timing-function: ease-in-out;
 }
 #holdingStation .pokemon.starter:hover {
-	background-color: #337ab7;
+	background-color: white;
+	-webkit-transition-property: background-color;
+    -webkit-transition-duration: 0.2s;
+    -webkit-transition-timing-function: ease-in-out;
+    transition-property: background-color;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out;
+} 
+#holdingStation .pokemon.challenger {
+	border: #f2dede 5px solid;
+	background-color: #f2dede;
+	max-height: 50%;
+	-webkit-transition-property: background-color -webkit-transform;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: ease-in-out;
+    transition-property: background-color -webkit-transform;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out;
+}
+#holdingStation .pokemon.challenger:hover {
+	background-color: white;
+	border-color: #a94442;
 	-webkit-transition-property: background-color;
     -webkit-transition-duration: 0.2s;
     -webkit-transition-timing-function: ease-in-out;
@@ -22,6 +50,16 @@
     transition-duration: 0.2s;
     transition-timing-function: ease-in-out;
 }
+#holdingStation .pokemon.defeated {
+	background-color: #a94442;
+}
+#holdingStation .pokemon.defeated img {
+	visibility: hidden;
+}
 #holdingStation .col-md-3 {
 	margin-bottom: 10px;
+}
+
+#battlefield .pokemon {
+	border: none;
 }
