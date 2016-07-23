@@ -18,6 +18,9 @@ $(document).ready(function(){
  * Pokemon Constructor
  * @param {string} name the pokemon's name
  * @param {string} img the relative path to the pokemon's img
+ * @param {string[]} type array containing the pokemon's type(s)
+ * @param {string[]} weaknesses array containing the pokemon's weakness types
+ * @param {string[]} resistances array containing the pokemon's resistance types
  * @param {number} basehp the pokemon's base hit point stat
  * @param {number} baseattack the pokemon's base attack stat
  * @param {number} basedefense the pokemon's base defense stat
@@ -27,7 +30,10 @@ $(document).ready(function(){
  * @param {Object} move the pokemon's attacking move
  */
 function Pokemon(name, 
-				img, 
+				img,
+				type,
+				weaknesses,
+				resistances, 
 				basehp, 
 				baseattack, 
 				basedefense,
@@ -40,6 +46,9 @@ function Pokemon(name,
 		id: uniqueID(),
 		name: name,
 		img: img,
+		type: type,
+		weaknesses: weaknesses,
+		resistances: resistances,
 		basehp: basehp,
 		baseattack: baseattack,
 		basedefense: basedefense,
@@ -73,7 +82,7 @@ function Pokemon(name,
 		calculateHP: function() {
 			return Math.floor((((basehp) * 2) * level) / 100) + level + 10;
 		},
-		move: move,
+		move: move
 	};
 
 	return pokemon;
@@ -92,11 +101,12 @@ var uniqueID = (function() {
 /**
  * Constructor for Move Object
  */
-function Move(name, basepwr, type) {
+function Move(name, basepwr, type, category) {
 	var move = {
 		name: name,
 		basepwr: basepwr,
-		type: type
+		type: type,
+		category: category
 	}
 
 	return move;
@@ -106,7 +116,7 @@ function Move(name, basepwr, type) {
  * initializes game
  */
 function init() {
-console.log("init()");
+	console.log("init()");
 	allPokemon = [];
 	starterID = -1;
 	challengerID = -1;
@@ -114,8 +124,11 @@ console.log("init()");
 	challengerSelected = false;
 }
 function createPokemon() {
-console.log("createPokemon()");
+	console.log("createPokemon()");
 /*
+ * @param {string[]} type array containing the pokemon's type(s)
+ * @param {string[]} weaknesses array containing the pokemon's weakness types
+ * @param {string[]} resistances array containing the pokemon's resistance types
  * @param {number} basehp the pokemon's base hit point stat
  * @param {number} baseattack the pokemon's base attack stat
  * @param {number} basedefense the pokemon's base defense stat
@@ -124,23 +137,29 @@ console.log("createPokemon()");
  * @param {number} level the pokemon's power level
  */
 
-	var razorleaf = new Move("Vine Whip",  45, "grass");
+	var vinewhip = new Move("Vine Whip",  45, "grass", "physical");
 	var bulbasaur = new Pokemon(
 		"Bulbasaur",
 		"assets/images/001Bulbasaur.png",
+		["grass", "poison"],
+		["flying", "fire", "psychic", "ice"],
+		["fighting", "water", "grass", "electric", "fairy"],
 		45,
 		49,
 		49,
 		65,
 		65,
 		15,
-		razorleaf
+		vinewhip
 	);
 
-	var ember = new Move("Ember",  40, "fire");
+	var ember = new Move("Ember",  40, "fire", "special");
 	var charmander = new Pokemon(
 		"Charmander",
 		"assets/images/004Charmander.png",
+		["fire"],
+		["ground", "rock", "water"],
+		["bug", "steel", "fire", "grass", "ice", "fairy"],
 		39,
 		52,
 		43,
@@ -149,10 +168,13 @@ console.log("createPokemon()");
 		15,
 		ember
 	);
-	var bubble = new Move("Bubble",  40, "water");
+	var bubble = new Move("Bubble",  40, "water", "special");
 	var squirtle = new Pokemon(
 		"Squirtle",
 		"assets/images/007Squirtle.png",
+		["water"],
+		["grass", "electric"],
+		["steel", "fire", "water", "ice"],
 		44,
 		48,
 		65,
@@ -161,10 +183,13 @@ console.log("createPokemon()");
 		15,
 		bubble
 	);
-	var thundershock = new Move("ThunderShock", 40, "electric");
+	var thundershock = new Move("ThunderShock", 40, "electric", "special");
 	var pikachu = new Pokemon(
 		"Pikachu",
 		"assets/images/025Pikachu.png",
+		["electric"],
+		["ground"],
+		["flying", "steel", "electric"],
 		35,
 		55,
 		40,
@@ -179,7 +204,7 @@ console.log("createPokemon()");
 	allPokemon[pikachu.id] = pikachu;
 }
 function displayStarterPokemon() {
-console.log("displayStarterPokemon()");
+	console.log("displayStarterPokemon()");
 	// Add all pokemon to holding station
 	for (var i = 0; i < allPokemon.length; i++) {
 		$pokemon = 
@@ -190,14 +215,14 @@ console.log("displayStarterPokemon()");
 				if (!starterSelected) {
 					starterSelected = true;
 					starterID = $(this).data("index");
-console.log(allPokemon[starterID].name + " selected");
 					$(this).parent().fadeOut("slow", function() {
 						$("#player").append(allPokemon[starterID].buildHTML());
 						addButton();
 						$("#battlefield").parent().switchClass("col-md-12", "col-md-9", 100);
-						$("#holdingStation .pokemon").parent().fadeOut( "slow", 
-							displayChallengers()
+						$("#holdingStation .pokemon").parent().fadeOut( "slow", displayChallengers()
 						);
+						addDescription($("<p>You chose " + allPokemon[starterID].name + ".</p>"));
+						addDescription($("<p>Click on a challenger to battle.</p>"));
 					});
 				}
 			});
@@ -205,6 +230,7 @@ console.log(allPokemon[starterID].name + " selected");
 			$("<div></div>")
 			.addClass("col-md-3")
 			.append($pokemon);
+		$wrapper.append("<h4>" + allPokemon[i].name + "</h4>");
 		$("#holdingStation div.panel-body").append($wrapper);
 	}
 }
@@ -214,45 +240,64 @@ function addButton() {
 		.on("click", 
 			function() {
 				if (starterSelected !== true || challengerSelected !== true ){
-					console.log("no one to attack");
+					addDescription($("<p>There's no one to attack.</p>"), true);
 					return;
 				}
 				if(allPokemon[starterID].currentHP <= 0) {
 					return;
 				}
 
-				console.log("attack");
-				console.log(allPokemon[starterID]);
-				console.log(allPokemon[challengerID]);
-				console.log(allPokemon[challengerID].currentHP);
+				addDescription(
+					$("<p>"
+						+ allPokemon[starterID].name 
+						+ " used " + allPokemon[starterID].move.name
+						+ ".</p>"),
+					true);
 
-				console.log(allPokemon[starterID].name + " used " + allPokemon[starterID].move.name);
-				console.log("p2HP: " + allPokemon[challengerID].currentHP);
-
-				//TODO: use the Pokemon Object damage functions
-				allPokemon[challengerID].currentHP = allPokemon[challengerID].currentHP - 12;
-
-				console.log("p2HP: " + allPokemon[challengerID].currentHP);
-				$("#challenger .hp").text(allPokemon[challengerID].currentHP);
+				var userDamage = damageCalculator(starterID, challengerID);
+				console.log("userDamage " + userDamage);
+				allPokemon[challengerID].currentHP = allPokemon[challengerID].currentHP - Math.floor(userDamage);
+								
 
 				if (allPokemon[challengerID].currentHP > 0) {
-					console.log(allPokemon[challengerID].name + " used " + allPokemon[challengerID].move.name);
-					//TODO: use the Pokemon Object damage functions
-					allPokemon[starterID].currentHP = allPokemon[starterID].currentHP - 5;
-					console.log("p1HP: " + allPokemon[starterID].currentHP);
+					$("#challenger .hp").text(allPokemon[challengerID].currentHP);
+					addDescription($("<p>" 
+						+ allPokemon[challengerID].name 
+						+ " used " + allPokemon[challengerID].move.name
+						+ ".</p>"));
+					var challengerDamage = damageCalculator(challengerID, starterID);
+					addDescription
+					console.log("challengerDamage " + challengerDamage);
+					allPokemon[starterID].currentHP = allPokemon[starterID].currentHP - Math.floor(challengerDamage);
+					
+					if(allPokemon[starterID].currentHP < 0) {
+						allPokemon[starterID].currentHP = 0;
+					}
+					
 					$("#player .hp").text(allPokemon[starterID].currentHP);
-					if (allPokemon[starterID].currentHP <= 0) {
+					if (allPokemon[starterID].currentHP === 0) {
 						//game over, reset()
-						console.log(allPokemon[starterID].name + " fainted.");
-						console.log("game over, you lost");
+						addDescription($("<p>" + allPokemon[starterID].name + " fainted.</p>"
+							+ "<p>You lost!</p>"));
+						addDescription($("<p>Refresh to try again.</p>"));
 					}
 				}
 				else {
-					console.log(allPokemon[challengerID].name + " fainted.");
+					//remove challenger pokemon
+					addDescription($("<p>" + allPokemon[challengerID].name + " fainted.</p>"));
 					allPokemon[challengerID].defeated = true;
 					challengerSelected = false;
 					challengerID = -1;
-					allPokemon[starterID].HP = allPokemon[starterID].calculateHP();
+
+					//level up the starter pokemon
+					allPokemon[starterID].level = allPokemon[starterID].level + 15;
+					$("#player table .level").text(allPokemon[starterID].level);
+					addDescription($("<p>" 
+						+ allPokemon[starterID].name 
+						+ " reached level " + allPokemon[starterID].level
+						+ "!</p>"));
+
+					//allPokemon[starterID].HP = allPokemon[starterID].calculateHP();
 					$("#challenger").fadeOut("slow", function () {
 						$(this).empty();
 					});
@@ -264,8 +309,108 @@ function addButton() {
 		);
 }
 
+/**
+ * damageCalculator:
+ * This function has been adapted from the
+ * actual damage equation featured in the Pokémon RPG.
+ * (http://bulbapedia.bulbagarden.net/wiki/Damage#Damage_modification)
+ * due to the fact that HP regeneration is not possible 
+ * in this app, adjustments were made to the formula
+ * to give the player an increased advantage.
+ */
+function damageCalculator(p1ID, p2ID){
+	console.log("damageCalculator()");
+	var level = allPokemon[p1ID].level;
+	var attack = 0;
+	var defense = 0;
+	var base = allPokemon[p1ID].move.basepwr;
+
+
+	//added to give player advantage
+	if (p1ID == starterID) {
+		level = level * 3.5;
+	}
+
+	// If move's category is physical, 
+	/// use player's attack
+	// and opponent's defense stats
+	if (allPokemon[p1ID].move.category === "physical") {
+		attack = allPokemon[p1ID].baseattack;
+		defense = allPokemon[p2ID].basedefense;
+	}
+	// else if move's category is special, 
+	// use player's special attack
+	// and opponent's special defense stats
+	else {
+		attack = allPokemon[p1ID].basespattack;
+		defense = allPokemon[p2ID].basespdefense;
+	}
+
+	// first half of damage calculation
+	var dmg = (((2 * level + 10)/250) * (attack/defense) * base + 2);
+
+	// Calculate damage modifier
+	var modifier = 1;
+
+	// determine if same-type attack-bonus
+	var STAB = 1;
+	var typeEffectiveness = 1;
+	var criticalHit = 1;
+	var other = 1;
+	var random = 1;
+
+	for (var i = 0; i < allPokemon[p1ID].type.length; i++) {
+		if (allPokemon[p1ID].move.type === allPokemon[p1ID].type[i]) {
+			STAB = 1.5;
+			break;
+		}
+	}
+
+	//check if move type matches opponent's resistances
+	for (var i = 0; i < allPokemon[p2ID].resistances.length; i++) {
+		if(allPokemon[p1ID].move.type === allPokemon[p2ID].resistances[i]) {
+			typeEffectiveness = typeEffectiveness * .5;
+
+			//added to give player advantage
+			if (p1ID == starterID) {
+				typeEffectiveness = typeEffectiveness * .90;
+			}
+			addDescription($("<p>It's not very effective..</p>"));
+		}
+	}
+
+	//check if move type matches opponent's weaknesses
+	for (var i = 0; i < allPokemon[p2ID].weaknesses.length; i++) {
+		if(allPokemon[p1ID].move.type === allPokemon[p2ID].weaknesses[i]) {
+			typeEffectiveness = typeEffectiveness * 2;
+			//added to give player advantage
+			if (p1ID == challengerID) {
+				typeEffectiveness = typeEffectiveness * 1;
+			}
+
+			addDescription($("<p>It's super effective!</p>"));
+		}
+	};
+
+	//ignoring critical hits for now
+	criticalHit = 1;
+
+	//ignoring ability to hold items
+	other = 1;
+
+	//calculating random decimal in the range of [0.85, 1]
+	var max = 1.0;
+	var min = 0.85;
+	random = Math.random() * (max - min) + min;
+
+	//calculating modifier, updating damage value
+	modifier = STAB * typeEffectiveness * criticalHit * other * random;
+	dmg = dmg * modifier;
+	return dmg;
+}
+
 function displayChallengers() {
-console.log("displayChallengers()");
+	console.log("displayChallengers()");
 	$("#holdingStation .panel-body").empty();
 	$("#holdingStation").switchClass("panel-primary", "panel-danger", 100);
 	$("#holdingStation div.panel-heading").text("Challenger Pokémon (click to battle)");
@@ -295,15 +440,14 @@ console.log("displayChallengers()");
 							if (!challengerSelected) {
 								challengerSelected = true;
 								challengerID = $(this).data("index");
-console.log(allPokemon[challengerID].name + " selected");
 								$(this).parent().fadeOut( "slow", function() {
 								    $("#challenger").append(allPokemon[challengerID].buildHTML()).fadeIn("slow");
 								    $(this).remove();
-								    battle();
+								    setUpBattle();
 								});
+								addDescription($("<p>Click the button to attack.</p>"), true);
 							}
 						});
-
 				}
 
 				$wrapper = $("<div></div>")
@@ -313,28 +457,32 @@ console.log(allPokemon[challengerID].name + " selected");
 			}
 		}
 		if (gameWon === true) {
-			console.log("you won the game!");
-			//TODO: level up the starter Pokemon
+			addDescription($("<p>You've become a Pokémon Master!</p>"));
+			addDescription($("<p>Refresh to play again.</p>"));
 		}
 	});
 
 }
 
-function battle() {
-console.log("battle");
+function setUpBattle() {
+console.log("setUpBattle()");
 	if (starterSelected !== true || challengerSelected !== true ){
 		console.log("exiting");
 		return;
 	}
-	console.log(allPokemon[starterID]);
-	console.log(allPokemon[challengerID]);
-	//allPokemon[starterID].currentHP = allPokemon[starterID].calculateHP();
-	console.log(allPokemon[challengerID].name + " currentHP:" + allPokemon[challengerID].calculateHP());
+	//allPokemon[starterID].currentHP = allPokemon[starterID].calculateHP(); //reset HP for new battle
+
 	allPokemon[challengerID].currentHP = allPokemon[challengerID].calculateHP();
-	console.log(allPokemon[challengerID].currentHP);
 	
 	$("#player table").remove();
 	$("#player").append(allPokemon[starterID].buildStatsHTML());
 	$("#player table .hp").text(allPokemon[starterID].currentHP);
 	$("#challenger").append(allPokemon[challengerID].buildStatsHTML());
+}
+
+function addDescription(desc, empty) {
+	if (empty === true) {
+		$("#description").empty();
+	}
+	$("#description").append(desc);
 }

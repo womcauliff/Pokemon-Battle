@@ -1,9 +1,9 @@
-#holdingStation .panel-body {
-/*	min-height: 287px;
-*/}
 #holdingStation .col-md-12 {
 	padding: 0 45px;
     margin-bottom: 10px;
+}
+#holdingStation .panel-body {
+	text-align: center;
 }
 .pokemon {
 	border-radius: 50%;
