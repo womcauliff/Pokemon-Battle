@@ -8,11 +8,44 @@ var challengerID;
 var challengerSelected;
 
 $(document).ready(function(){
+	$("audio")[0].play();
+	$("audio")[0].loop = true;
+	p1();
 	init();
 	createPokemon();
 	displayStarterPokemon();
 });
 
+/**
+ * Intro Animations
+ */
+function p1() {
+	$("#theater img")
+		.attr("src", "assets/images/intro1.gif");
+	setTimeout(p2, 2000);
+}
+function p2() {
+	$("#theater img")
+		.attr("src", "assets/images/intro2.gif");
+	setTimeout(p3, 5000);
+}
+function p3() {
+	$("#theater img")
+		.attr("src", "assets/images/intro3.gif");
+	setTimeout(p4, 2000);
+}
+function p4() {
+	$("#theater img")
+		.attr("src", "assets/images/intro4.gif");
+	setTimeout(function() {
+		$("#theater").slideUp( "slow", function() {
+    		// Animation complete.
+    		$("#theater").remove();
+    		$(".container").css('visibility', 'visible');
+  		});
+	}, 2700);
+
+}
 
 /**
  * Pokemon Constructor
@@ -219,8 +252,11 @@ function displayStarterPokemon() {
 						$("#player").append(allPokemon[starterID].buildHTML());
 						addButton();
 						$("#battlefield").parent().switchClass("col-md-12", "col-md-9", 100);
-						$("#holdingStation .pokemon").parent().fadeOut( "slow", displayChallengers()
-						);
+						$("#holdingStation .pokemon").parent()
+							.fadeOut( 
+								"slow", 
+								displayChallengers()
+							);
 						addDescription($("<p>You chose " + allPokemon[starterID].name + ".</p>"));
 						addDescription($("<p>Click on a challenger to battle.</p>"));
 					});
@@ -411,6 +447,11 @@ function damageCalculator(p1ID, p2ID){
 
 function displayChallengers() {
 	console.log("displayChallengers()");
+	$("audio").animate({volume: 0.0}, 500, function(){
+		console.log("muted");
+		$("audio")[0].pause();
+	});
+	
 	$("#holdingStation .panel-body").empty();
 	$("#holdingStation").switchClass("panel-primary", "panel-danger", 100);
 	$("#holdingStation div.panel-heading").text("Challenger Pokémon (click to battle)");
