@@ -8,6 +8,7 @@ var challengerID;
 var challengerSelected;
 
 $(document).ready(function(){
+	$("img.preloaded").remove();
 	$("audio")[0].play();
 	$("audio")[0].loop = true;
 	p1();

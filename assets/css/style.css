@@ -1,6 +1,9 @@
 #theater img {
     width: 100%;
 }
+#theater img.preloaded {
+    display: none;
+}
 
 #holdingStation .col-md-12 {
 	padding: 0 45px;
